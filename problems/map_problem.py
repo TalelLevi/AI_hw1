@@ -45,7 +45,7 @@ class MapProblem(GraphProblem):
         """
         For a given state, iterates over its successor states.
         The successor states represents the junctions to which there
-         exists a road originates from the given state.
+        exists a road originates from the given state.
         """
 
         # All of the states in this problem are instances of the class `MapState`.
