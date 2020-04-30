@@ -100,20 +100,24 @@ def toy_map_problem_experiments():
     # TODO: Just run it and inspect the printed result.
     toy_map_problem = MapProblem(streets_map, 54, 549)
     uc = UniformCost()
-    res = uc.solve_problem(toy_map_problem)
-    print(res)
+    # res = uc.solve_problem(toy_map_problem)
+    # print(res)
 
     # Ex.10
     # TODO: create an instance of `AStar` with the `NullHeuristic`,
     #       solve the same `toy_map_problem` with it and print the results (as before).
     # Notice: AStar constructor receives the heuristic *type* (ex: `MyHeuristicClass`),
     #         and NOT an instance of the heuristic (eg: not `MyHeuristicClass()`).
-    exit()  # TODO: remove!
+    # a_star = AStar(NullHeuristic)
+    # res = a_star.solve_problem(toy_map_problem)
+    # print(res)
 
     # Ex.11
     # TODO: create an instance of `AStar` with the `AirDistHeuristic`,
     #       solve the same `toy_map_problem` with it and print the results (as before).
-    exit()  # TODO: remove!
+    a_star = AStar(AirDistHeuristic)
+    res = a_star.solve_problem(toy_map_problem)
+    print(res)
 
     # Ex.12
     # TODO:
