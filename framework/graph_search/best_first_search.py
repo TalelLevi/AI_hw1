@@ -110,7 +110,7 @@ class BestFirstSearch(GraphProblemSolver):
         self.open_criterion = open_criterion
         self.max_nr_stored_states = 0
 
-    def solve_problem(self, problem: GraphProblem) -> SearchResult:
+    def solve_problem(self, problem: object) -> object:
         """
         Implementation of the generic Best First Search algorithm.
         """
