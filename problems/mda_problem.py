@@ -78,7 +78,13 @@ class MDAState(GraphProblemState):
         #   (using equals `==` operator) because the class `Junction` explicitly
         #   implements the `__eq__()` method. The types `frozenset`, `ApartmentWithSymptomsReport`, `Laboratory`
         #   are also comparable (in the same manner).
-        raise NotImplementedError  # TODO: remove this line.
+
+
+        return self.current_site == other.current_site and \
+                self.tests_on_ambulance == other.tests_on_ambulance and \
+                self.tests_transferred_to_lab == other.tests_transferred_to_lab and \
+                self.nr_matoshim_on_ambulance == other.nr_matoshim_on_ambulance and \
+                self.visited_labs == other.visited_labs
 
     def __hash__(self):
         """
@@ -99,8 +105,8 @@ class MDAState(GraphProblemState):
          Notice that `sum()` can receive an *ITERATOR* as argument; That is, you can simply write something like this:
         >>> sum(<some expression using item> for item in some_collection_of_items)
         """
-        raise NotImplementedError  # TODO: remove this line.
 
+        return sum([apartment.nr_roommates for apartment in self.tests_on_ambulance])
 
 class MDAOptimizationObjective(Enum):
     Distance = 'Distance'
@@ -205,7 +211,9 @@ class MDAProblem(GraphProblem):
         """
 
         assert isinstance(state_to_expand, MDAState)
-        raise NotImplementedError  # TODO: remove this line!
+
+      #  for state in self.get_reported_apartments_waiting_to_visit(state_to_expand):
+       #     yield OperatorResult(state)
 
     def get_operator_cost(self, prev_state: MDAState, succ_state: MDAState) -> MDACost:
         """
@@ -216,7 +224,10 @@ class MDAProblem(GraphProblem):
         Use the method `self.map_distance_finder.get_map_cost_between()` to calculate the distance
          between to junctions.
         """
-        raise NotImplementedError  # TODO: remove this line!
+
+        distance = self.map_distance_finder.get_map_cost_between(prev_state.current_site, succ_state.current_site)
+        test_travel = prev_state.get_total_nr_tests_taken_and_stored_on_ambulance()*distance
+        return MDACost(distance, test_travel)
 
     def is_goal(self, state: GraphProblemState) -> bool:
         """
@@ -235,6 +246,7 @@ class MDAProblem(GraphProblem):
         In this problem the accumulated cost is not a single float scalar, but an
          extended cost, which actually includes 2 scalar costs.
         """
+
         return MDACost(optimization_objective=self.optimization_objective)
 
     def get_reported_apartments_waiting_to_visit(self, state: MDAState) -> Set[ApartmentWithSymptomsReport]:
@@ -247,7 +259,8 @@ class MDAProblem(GraphProblem):
                 generated set.
             Note: This method can be implemented using a single line of code. Try to do so.
         """
-        raise NotImplementedError  # TODO: remove this line!
+
+        return set(self.problem_input.reported_apartments) - state.tests_on_ambulance - state.tests_transferred_to_lab
 
     def get_all_certain_junctions_in_remaining_ambulance_path(self, state: MDAState) -> List[Junction]:
         """
