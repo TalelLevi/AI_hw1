@@ -7,7 +7,6 @@ from .map_heuristics import AirDistHeuristic
 from .cached_map_distance_finder import CachedMapDistanceFinder
 from .mda_problem_input import *
 
-
 __all__ = ['MDAState', 'MDACost', 'MDAProblem', 'MDAOptimizationObjective']
 
 
@@ -79,12 +78,11 @@ class MDAState(GraphProblemState):
         #   implements the `__eq__()` method. The types `frozenset`, `ApartmentWithSymptomsReport`, `Laboratory`
         #   are also comparable (in the same manner).
 
-
         return self.current_site == other.current_site and \
-                self.tests_on_ambulance == other.tests_on_ambulance and \
-                self.tests_transferred_to_lab == other.tests_transferred_to_lab and \
-                self.nr_matoshim_on_ambulance == other.nr_matoshim_on_ambulance and \
-                self.visited_labs == other.visited_labs
+               self.tests_on_ambulance == other.tests_on_ambulance and \
+               self.tests_transferred_to_lab == other.tests_transferred_to_lab and \
+               self.nr_matoshim_on_ambulance == other.nr_matoshim_on_ambulance and \
+               self.visited_labs == other.visited_labs
 
     def __hash__(self):
         """
@@ -105,8 +103,9 @@ class MDAState(GraphProblemState):
          Notice that `sum()` can receive an *ITERATOR* as argument; That is, you can simply write something like this:
         >>> sum(<some expression using item> for item in some_collection_of_items)
         """
+        total_tests_nr_on_ambulance = sum([apartment.nr_roommates for apartment in self.tests_on_ambulance])
+        return total_tests_nr_on_ambulance
 
-        return sum([apartment.nr_roommates for apartment in self.tests_on_ambulance])
 
 class MDAOptimizationObjective(Enum):
     Distance = 'Distance'
@@ -212,8 +211,32 @@ class MDAProblem(GraphProblem):
 
         assert isinstance(state_to_expand, MDAState)
 
-      #  for state in self.get_reported_apartments_waiting_to_visit(state_to_expand):
-       #     yield OperatorResult(state)
+        for lab in self.problem_input.laboratories:
+            available_matoshim_in_lab = lab not in state_to_expand.visited_labs
+            if available_matoshim_in_lab or len(state_to_expand.tests_on_ambulance) > 0:
+                new_taken_tests = frozenset()
+                new_transferred_tests = state_to_expand.tests_transferred_to_lab | state_to_expand.tests_on_ambulance
+                new_number_of_matoshim = state_to_expand.nr_matoshim_on_ambulance \
+                                         + available_matoshim_in_lab * lab.max_nr_matoshim
+                new_visited_labs = state_to_expand.visited_labs | frozenset({lab})
+                expanded_state = MDAState(lab, new_taken_tests, new_transferred_tests, new_number_of_matoshim,
+                                          new_visited_labs)
+                operator_cost = self.get_operator_cost(state_to_expand, expanded_state)
+                yield OperatorResult(expanded_state, operator_cost)
+
+        number_of_tests_on_ambulance = sum([apt.nr_roommates for apt in state_to_expand.tests_on_ambulance])
+        current_capacity = self.problem_input.ambulance.taken_tests_storage_capacity - number_of_tests_on_ambulance
+        for apartment in self.get_reported_apartments_waiting_to_visit(state_to_expand):
+            if current_capacity >= apartment.nr_roommates and \
+                    state_to_expand.nr_matoshim_on_ambulance >= apartment.nr_roommates:
+                new_taken_tests = state_to_expand.tests_on_ambulance | frozenset({apartment})
+                new_transferred_tests = state_to_expand.tests_transferred_to_lab
+                new_number_of_matoshim = state_to_expand.nr_matoshim_on_ambulance - apartment.nr_roommates
+                new_visited_labs = state_to_expand.visited_labs
+                expanded_state = MDAState(apartment, new_taken_tests, new_transferred_tests, new_number_of_matoshim,
+                                          new_visited_labs)
+                operator_cost = self.get_operator_cost(state_to_expand, expanded_state)
+                yield OperatorResult(expanded_state, operator_cost)
 
     def get_operator_cost(self, prev_state: MDAState, succ_state: MDAState) -> MDACost:
         """
@@ -225,8 +248,11 @@ class MDAProblem(GraphProblem):
          between to junctions.
         """
 
-        distance = self.map_distance_finder.get_map_cost_between(prev_state.current_site, succ_state.current_site)
-        test_travel = prev_state.get_total_nr_tests_taken_and_stored_on_ambulance()*distance
+        source = prev_state.current_site if isinstance(prev_state.current_site, Junction) else prev_state.current_site.location
+        destination = succ_state.current_site.location
+
+        distance = self.map_distance_finder.get_map_cost_between(source, destination)
+        test_travel = prev_state.get_total_nr_tests_taken_and_stored_on_ambulance() * distance
         return MDACost(distance, test_travel)
 
     def is_goal(self, state: GraphProblemState) -> bool:
@@ -237,7 +263,7 @@ class MDAProblem(GraphProblem):
          In order to create a set from some other collection (list/tuple) you can just `set(some_other_collection)`.
         """
         assert isinstance(state, MDAState)
-        raise NotImplementedError  # TODO: remove the line!
+        return state.tests_transferred_to_lab == frozenset(self.problem_input.reported_apartments)
 
     def get_zero_cost(self) -> Cost:
         """
