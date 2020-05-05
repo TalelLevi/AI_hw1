@@ -298,4 +298,8 @@ class MDAProblem(GraphProblem):
             Use the method `self.get_reported_apartments_waiting_to_visit(state)`.
             Use python's `sorted(..., key=...)` function.
         """
-        raise NotImplementedError  # TODO: remove this line!
+        curr_location = state.current_site if isinstance(state.current_site, Junction) else state.current_site.location
+        junction_list = [apt.location for apt in self.get_reported_apartments_waiting_to_visit(state)]
+        junction_list.append(curr_location)
+        junction_list.sort(key=lambda junction: junction.index)
+        return junction_list

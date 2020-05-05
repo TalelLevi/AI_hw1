@@ -6,7 +6,6 @@ from framework import *
 from .mda_problem import *
 from .cached_air_distance_calculator import CachedAirDistanceCalculator
 
-
 __all__ = ['MDAMaxAirDistHeuristic', 'MDASumAirDistHeuristic',
            'MDAMSTAirDistHeuristic', 'MDATestsTravelDistToNearestLabHeuristic']
 
@@ -49,7 +48,13 @@ class MDAMaxAirDistHeuristic(HeuristicFunction):
         if len(all_certain_junctions_in_remaining_ambulance_path) < 2:
             return 0
 
-        return 10  # TODO: modify this line.
+        result = [self.cached_air_distance_calculator.get_air_distance_between_junctions(
+            all_certain_junctions_in_remaining_ambulance_path[junction1],
+            all_certain_junctions_in_remaining_ambulance_path[junction2]) for junction1 in
+            range(len(all_certain_junctions_in_remaining_ambulance_path)) for junction2 in
+            range(junction1 + 1, len(all_certain_junctions_in_remaining_ambulance_path))]
+
+        return max(result)
 
 
 class MDASumAirDistHeuristic(HeuristicFunction):
@@ -87,7 +92,17 @@ class MDASumAirDistHeuristic(HeuristicFunction):
         if len(all_certain_junctions_in_remaining_ambulance_path) < 2:
             return 0
 
-        raise NotImplementedError  # TODO: remove this line and complete the missing part here!
+        curr_junc = state.current_site if isinstance(state.current_site, Junction) else state.current_site.location
+        total_cost = 0
+        while len(all_certain_junctions_in_remaining_ambulance_path) > 0:
+            curr_junction_in_path = [
+                (junc, self.cached_air_distance_calculator.get_air_distance_between_junctions(curr_junc, junc))
+                for junc in all_certain_junctions_in_remaining_ambulance_path]
+            curr_junc, curr_cost = min(curr_junction_in_path, key=lambda tup: tup[1])
+            total_cost = total_cost + curr_cost
+            all_certain_junctions_in_remaining_ambulance_path.remove(curr_junc)
+        return total_cost
+
 
 
 class MDAMSTAirDistHeuristic(HeuristicFunction):

@@ -50,7 +50,7 @@ class AStar(BestFirstSearch):
         Notice: You may use `search_node.g_cost`, `self.heuristic_weight`, and `self.heuristic_function`.
         """
         w = self.heuristic_weight
-        g = search_node.cost
+        g = search_node.g_cost
         h = self.heuristic_function.estimate(search_node.state)
         return (1 - w) * g + w * h
 
