@@ -94,7 +94,7 @@ class MDASumAirDistHeuristic(HeuristicFunction):
 
         curr_junc = state.current_site if isinstance(state.current_site, Junction) else state.current_site.location
         total_cost = 0
-        while len(all_certain_junctions_in_remaining_ambulance_path) > 0:
+        while len(all_certain_junctions_in_remaining_ambulance_path) > 0:  # TODO try and use list-comprehension
             curr_junction_in_path = [
                 (junc, self.cached_air_distance_calculator.get_air_distance_between_junctions(curr_junc, junc))
                 for junc in all_certain_junctions_in_remaining_ambulance_path]
@@ -102,7 +102,6 @@ class MDASumAirDistHeuristic(HeuristicFunction):
             total_cost = total_cost + curr_cost
             all_certain_junctions_in_remaining_ambulance_path.remove(curr_junc)
         return total_cost
-
 
 
 class MDAMSTAirDistHeuristic(HeuristicFunction):
@@ -140,8 +139,16 @@ class MDAMSTAirDistHeuristic(HeuristicFunction):
               Use `nx.minimum_spanning_tree()` to get an MST. Calculate the MST size using the method
               `.size(weight='weight')`. Do not manually sum the edges' weights.
         """
-        raise NotImplementedError  # TODO: remove this line!
-
+        graph = nx.Graph()
+        graph.add_nodes_from(junctions)
+        weighted_edges = [(junction1, junction2,
+                           self.cached_air_distance_calculator.get_air_distance_between_junctions(junctions[junction1],
+                                                                                                  junctions[junction2]))
+                          for junction1 in range(len(junctions)) for junction2 in range(junction1 + 1, len(junctions))]
+        graph.add_weighted_edges_from(weighted_edges)
+        spanning_tree = nx.minimum_spanning_tree(graph)
+        mst_total_weight = spanning_tree.size(weight='weight')
+        return mst_total_weight
 
 class MDATestsTravelDistToNearestLabHeuristic(HeuristicFunction):
     heuristic_name = 'MDA-TimeObjectiveSumOfMinAirDistFromLab'
