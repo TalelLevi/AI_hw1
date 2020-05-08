@@ -150,6 +150,7 @@ class MDAMSTAirDistHeuristic(HeuristicFunction):
         mst_total_weight = spanning_tree.size(weight='weight')
         return mst_total_weight
 
+
 class MDATestsTravelDistToNearestLabHeuristic(HeuristicFunction):
     heuristic_name = 'MDA-TimeObjectiveSumOfMinAirDistFromLab'
 
@@ -181,6 +182,14 @@ class MDATestsTravelDistToNearestLabHeuristic(HeuristicFunction):
             """
             Returns the distance between `junction` and the laboratory that is closest to `junction`.
             """
-            return min(...)  # TODO: replace `...` with the relevant implementation.
+            labs_dist = [self.cached_air_distance_calculator.get_air_distance_between_junctions(junction, lab.location)
+                         for lab in self.problem.problem_input.laboratories]
+            return min(labs_dist)
 
-        raise NotImplementedError
+        curr_location = state.current_site if isinstance(state.current_site, Junction) else state.current_site.location
+        apts_on_path = self.problem.get_reported_apartments_waiting_to_visit(state)
+        tests_on_ambulance = state.get_total_nr_tests_taken_and_stored_on_ambulance()
+        dist_to_lab = air_dist_to_closest_lab(curr_location)
+        cost_to_first_lab = tests_on_ambulance * dist_to_lab
+        remained_cost = [air_dist_to_closest_lab(apt.location) * apt.nr_roommates for apt in apts_on_path]
+        return cost_to_first_lab + sum(remained_cost)

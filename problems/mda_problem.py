@@ -248,12 +248,13 @@ class MDAProblem(GraphProblem):
          between to junctions.
         """
 
-        source = prev_state.current_site if isinstance(prev_state.current_site, Junction) else prev_state.current_site.location
+        source = prev_state.current_site if isinstance(prev_state.current_site,
+                                                       Junction) else prev_state.current_site.location
         destination = succ_state.current_site.location
 
         distance = self.map_distance_finder.get_map_cost_between(source, destination)
         test_travel = prev_state.get_total_nr_tests_taken_and_stored_on_ambulance() * distance
-        return MDACost(distance, test_travel)
+        return MDACost(distance, test_travel, self.optimization_objective)
 
     def is_goal(self, state: GraphProblemState) -> bool:
         """
