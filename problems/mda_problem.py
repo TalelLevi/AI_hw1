@@ -222,7 +222,8 @@ class MDAProblem(GraphProblem):
                 expanded_state = MDAState(lab, new_taken_tests, new_transferred_tests, new_number_of_matoshim,
                                           new_visited_labs)
                 operator_cost = self.get_operator_cost(state_to_expand, expanded_state)
-                yield OperatorResult(expanded_state, operator_cost)
+                operator_name = "go to lab " + lab.name
+                yield OperatorResult(expanded_state, operator_cost, operator_name)
 
         number_of_tests_on_ambulance = sum([apt.nr_roommates for apt in state_to_expand.tests_on_ambulance])
         current_capacity = self.problem_input.ambulance.taken_tests_storage_capacity - number_of_tests_on_ambulance
@@ -236,7 +237,8 @@ class MDAProblem(GraphProblem):
                 expanded_state = MDAState(apartment, new_taken_tests, new_transferred_tests, new_number_of_matoshim,
                                           new_visited_labs)
                 operator_cost = self.get_operator_cost(state_to_expand, expanded_state)
-                yield OperatorResult(expanded_state, operator_cost)
+                operator_name = "visit " + apartment.reporter_name
+                yield OperatorResult(expanded_state, operator_cost, operator_name)
 
     def get_operator_cost(self, prev_state: MDAState, succ_state: MDAState) -> MDACost:
         """
