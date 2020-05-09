@@ -43,13 +43,13 @@ def plot_distance_and_expanded_wrt_weight_figure(
     # https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.plot.html
     # You can also Google for additional examples.
 
-    p1, = ax1.plot(weights, total_cost, label="SOLUTION COST VS WEIGHT")  # TODO: pass the relevant params instead of `...`.
+    p1, = ax1.plot(weights, total_cost,
+                   label="SOLUTION COST VS WEIGHT")  # TODO: pass the relevant params instead of `...`.
 
     # ax1: Make the y-axis label, ticks and tick labels match the line color.
     ax1.set_ylabel('Solution cost', color='b')
     ax1.tick_params('y', colors='b')
     ax1.set_xlabel('weight')
-
 
     # Create another axis for the #expanded curve.
     ax2 = ax1.twinx()
@@ -57,7 +57,8 @@ def plot_distance_and_expanded_wrt_weight_figure(
     # TODO: Plot the total expanded with ax2. Use `ax2.plot(...)`.
     # TODO: Make this curve colored red with solid line style.
     # TODO: Set its label to be '#Expanded states'.
-    p2, = ax2.plot(weights, total_nr_expanded, color='r', label="EXPANDED STATES VS WEIGHT")  # TODO: pass the relevant params instead of `...`.
+    p2, = ax2.plot(weights, total_nr_expanded, color='r',
+                   label="EXPANDED STATES VS WEIGHT")  # TODO: pass the relevant params instead of `...`.
 
     # ax2: Make the y-axis label, ticks and tick labels match the line color.
     ax2.set_ylabel('#Expanded states', color='r')
@@ -96,6 +97,7 @@ def run_astar_for_weights_in_range(heuristic_type: HeuristicFunctionType, proble
     costs, expands = zip(
         *[(result.solution_g_cost, result.nr_expanded_states) for result in search_results if result.is_solution_found])
     plot_distance_and_expanded_wrt_weight_figure(problem.name, weights, costs, expands)
+
 
 def toy_map_problem_experiments():
     print()
@@ -203,6 +205,7 @@ def mda_problem_with_astar_experiments():
     res = a_star.solve_problem(moderate_mda_problem_with_distance_cost)
     print(res)
 
+
 def mda_problem_with_weighted_astar_experiments():
     print()
     print('Solve the MDA problem (small & moderate input, only distance objective, wA*).')
@@ -250,8 +253,17 @@ def multiple_objectives_mda_problem_experiments():
     #          has to return whether to add this just-created-node to the `open` queue. Remember that in python
     #          you can pass an argument to a function by its name `some_func(argument_name=some_value)`.
     #       Solve the `moderate_mda_problem_with_tests_travel_dist_cost` with it and print the results.
-    exit()  # TODO: remove!
-
+    # a_star = AStar(MDAMSTAirDistHeuristic)
+    # res = a_star.solve_problem(moderate_mda_problem_with_distance_cost)
+    # optimal_distance_cost = res.solution_g_cost
+    # eps = 0
+    # max_distance_cost = (1 + eps) * optimal_distance_cost
+    # print(optimal_distance_cost)
+    # a_star2 = AStar(MDATestsTravelDistToNearestLabHeuristic,
+    #                open_criterion=lambda node: node.operator_cost.get_g_cost() <= max_distance_cost)
+    # result = a_star2.solve_problem(moderate_mda_problem_with_tests_travel_dist_cost)
+    # print(result.solution_g_cost)
+    # print(result)
 
 def mda_problem_with_astar_epsilon_experiments():
     print()
@@ -297,10 +309,10 @@ def mda_problem_anytime_astar_experiments():
 
 def run_all_experiments():
     print('Running all experiments')
-    # toy_map_problem_experiments()
-    # basic_mda_problem_experiments()
-    # mda_problem_with_astar_experiments()
-    # mda_problem_with_weighted_astar_experiments()
+    toy_map_problem_experiments()
+    basic_mda_problem_experiments()
+    mda_problem_with_astar_experiments()
+    mda_problem_with_weighted_astar_experiments()
     multiple_objectives_mda_problem_experiments()
     # mda_problem_with_astar_epsilon_experiments()
     # mda_problem_anytime_astar_experiments()

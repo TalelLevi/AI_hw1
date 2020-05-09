@@ -100,8 +100,7 @@ class MDAState(GraphProblemState):
         TODO [Ex.13]: Implement this method.
          Notice that this method can be implemented using a single line of code - do so!
          Use python's built-it `sum()` function.
-         Notice that `sum()` can receive an *ITERATOR* as argument; That is, you can simply write something like this:
-        >>> sum(<some expression using item> for item in some_collection_of_items)
+         Notice that `sum()` can receive an *ITERATOR* as argument
         """
         total_tests_nr_on_ambulance = sum([apartment.nr_roommates for apartment in self.tests_on_ambulance])
         return total_tests_nr_on_ambulance
@@ -171,7 +170,8 @@ class MDAProblem(GraphProblem):
             tests_on_ambulance=frozenset(),
             tests_transferred_to_lab=frozenset(),
             nr_matoshim_on_ambulance=problem_input.ambulance.initial_nr_matoshim,
-            visited_labs=frozenset())
+            visited_labs=frozenset()
+        )
         super(MDAProblem, self).__init__(initial_state)
         self.problem_input = problem_input
         self.streets_map = streets_map
@@ -210,32 +210,34 @@ class MDAProblem(GraphProblem):
         """
 
         assert isinstance(state_to_expand, MDAState)
-
+        nr_tests_on_ambulance = state_to_expand.get_total_nr_tests_taken_and_stored_on_ambulance()
         for lab in self.problem_input.laboratories:
             available_matoshim_in_lab = lab not in state_to_expand.visited_labs
-            if available_matoshim_in_lab or len(state_to_expand.tests_on_ambulance) > 0:
-                new_taken_tests = frozenset()
-                new_transferred_tests = state_to_expand.tests_transferred_to_lab | state_to_expand.tests_on_ambulance
-                new_number_of_matoshim = state_to_expand.nr_matoshim_on_ambulance \
-                                         + available_matoshim_in_lab * lab.max_nr_matoshim
-                new_visited_labs = state_to_expand.visited_labs | frozenset({lab})
-                expanded_state = MDAState(lab, new_taken_tests, new_transferred_tests, new_number_of_matoshim,
-                                          new_visited_labs)
+            if available_matoshim_in_lab or nr_tests_on_ambulance > 0:
+                expanded_state = MDAState(
+                    current_site=lab,
+                    tests_on_ambulance=frozenset(),
+                    tests_transferred_to_lab=state_to_expand.tests_transferred_to_lab | state_to_expand.tests_on_ambulance,
+                    nr_matoshim_on_ambulance=state_to_expand.nr_matoshim_on_ambulance + available_matoshim_in_lab * lab.max_nr_matoshim,
+                    visited_labs=state_to_expand.visited_labs | frozenset({lab})
+                    # cost_from_source=state_to_expand.cost_from_source + operator_cost.get_g_cost()
+                )
                 operator_cost = self.get_operator_cost(state_to_expand, expanded_state)
                 operator_name = "go to lab " + lab.name
                 yield OperatorResult(expanded_state, operator_cost, operator_name)
 
-        number_of_tests_on_ambulance = sum([apt.nr_roommates for apt in state_to_expand.tests_on_ambulance])
-        current_capacity = self.problem_input.ambulance.taken_tests_storage_capacity - number_of_tests_on_ambulance
+        current_capacity = self.problem_input.ambulance.taken_tests_storage_capacity - nr_tests_on_ambulance
         for apartment in self.get_reported_apartments_waiting_to_visit(state_to_expand):
             if current_capacity >= apartment.nr_roommates and \
                     state_to_expand.nr_matoshim_on_ambulance >= apartment.nr_roommates:
-                new_taken_tests = state_to_expand.tests_on_ambulance | frozenset({apartment})
-                new_transferred_tests = state_to_expand.tests_transferred_to_lab
-                new_number_of_matoshim = state_to_expand.nr_matoshim_on_ambulance - apartment.nr_roommates
-                new_visited_labs = state_to_expand.visited_labs
-                expanded_state = MDAState(apartment, new_taken_tests, new_transferred_tests, new_number_of_matoshim,
-                                          new_visited_labs)
+                expanded_state = MDAState(
+                    current_site=apartment,
+                    tests_on_ambulance=state_to_expand.tests_on_ambulance | frozenset({apartment}),
+                    tests_transferred_to_lab=state_to_expand.tests_transferred_to_lab,
+                    nr_matoshim_on_ambulance=state_to_expand.nr_matoshim_on_ambulance - apartment.nr_roommates,
+                    visited_labs=state_to_expand.visited_labs
+                    # cost_from_source=state_to_expand.cost_from_source + operator_cost.get_g_cost()
+                )
                 operator_cost = self.get_operator_cost(state_to_expand, expanded_state)
                 operator_name = "visit " + apartment.reporter_name
                 yield OperatorResult(expanded_state, operator_cost, operator_name)
@@ -249,7 +251,6 @@ class MDAProblem(GraphProblem):
         Use the method `self.map_distance_finder.get_map_cost_between()` to calculate the distance
          between to junctions.
         """
-
         source = prev_state.current_site if isinstance(prev_state.current_site,
                                                        Junction) else prev_state.current_site.location
         destination = succ_state.current_site.location

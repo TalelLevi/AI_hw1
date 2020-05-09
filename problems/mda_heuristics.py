@@ -191,7 +191,5 @@ class MDATestsTravelDistToNearestLabHeuristic(HeuristicFunction):
         tests_on_ambulance = state.get_total_nr_tests_taken_and_stored_on_ambulance()
         dist_to_lab = air_dist_to_closest_lab(curr_location)
         cost_to_first_lab = tests_on_ambulance * dist_to_lab
-        remained_cost = [air_dist_to_closest_lab(apt.location) * apt.nr_roommates for apt in apts_on_path]
-        total_cost = cost_to_first_lab + sum(remained_cost)
-        return total_cost
-
+        remained_cost = sum([air_dist_to_closest_lab(apt.location) * apt.nr_roommates for apt in apts_on_path])
+        return cost_to_first_lab + remained_cost
