@@ -254,6 +254,8 @@ class MDAProblem(GraphProblem):
         destination = succ_state.current_site.location
 
         distance = self.map_distance_finder.get_map_cost_between(source, destination)
+        if distance is None:
+            return MDACost(float('inf'), float('inf'), self.optimization_objective)
         test_travel = prev_state.get_total_nr_tests_taken_and_stored_on_ambulance() * distance
         return MDACost(distance, test_travel, self.optimization_objective)
 
