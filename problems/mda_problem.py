@@ -220,7 +220,6 @@ class MDAProblem(GraphProblem):
                     tests_transferred_to_lab=state_to_expand.tests_transferred_to_lab | state_to_expand.tests_on_ambulance,
                     nr_matoshim_on_ambulance=state_to_expand.nr_matoshim_on_ambulance + available_matoshim_in_lab * lab.max_nr_matoshim,
                     visited_labs=state_to_expand.visited_labs | frozenset({lab})
-                    # cost_from_source=state_to_expand.cost_from_source + operator_cost.get_g_cost()
                 )
                 operator_cost = self.get_operator_cost(state_to_expand, expanded_state)
                 operator_name = "go to lab " + lab.name
@@ -236,7 +235,6 @@ class MDAProblem(GraphProblem):
                     tests_transferred_to_lab=state_to_expand.tests_transferred_to_lab,
                     nr_matoshim_on_ambulance=state_to_expand.nr_matoshim_on_ambulance - apartment.nr_roommates,
                     visited_labs=state_to_expand.visited_labs
-                    # cost_from_source=state_to_expand.cost_from_source + operator_cost.get_g_cost()
                 )
                 operator_cost = self.get_operator_cost(state_to_expand, expanded_state)
                 operator_name = "visit " + apartment.reporter_name
@@ -304,6 +302,9 @@ class MDAProblem(GraphProblem):
         """
         curr_location = state.current_location
         junction_list = [apt.location for apt in self.get_reported_apartments_waiting_to_visit(state)]
+        assert (curr_location not in junction_list)
         junction_list.append(curr_location)
         junction_list.sort(key=lambda junction: junction.index)
+        if len(junction_list) >= 2:
+            assert junction_list[0].index < junction_list[1].index
         return junction_list

@@ -39,21 +39,26 @@ class AStarEpsilon(AStar):
         Extracts the next node to expand from the open queue,
          by focusing on the current FOCAL and choosing the node
          with the best within_focal_priority from it.
+
         TODO [Ex.38]: Implement this method!
         Find the minimum expanding-priority value in the `open` queue.
         Calculate the maximum expanding-priority of the FOCAL, which is
          the min expanding-priority in open multiplied by (1 + eps) where
          eps is stored under `self.focal_epsilon`.
+
         Create the FOCAL by popping items from the `open` queue and inserting
          them into a focal list. Don't forget to satisfy the constraint of
          `self.max_focal_size` if it is set (not None).
+
         Notice: You might want to pop items from the `open` priority queue,
          and then choose an item out of these popped items. Don't forget:
          the other items have to be pushed back into open.
+
         Inspect the base class `BestFirstSearch` to retrieve the type of
          the field `open`. Then find the definition of this type and find
          the right methods to use (you might want to peek the head node, to
          pop/push nodes and to query whether the queue is empty).
+
         For each node (candidate) in the created focal, calculate its priority
          by callingthe function `self.within_focal_priority_function` on it.
          This function expects to get 3 values: the node, the problem and the
@@ -62,11 +67,40 @@ class AStarEpsilon(AStar):
          with the minimal value. After having this index you could pop this
          item from the focal (at this index). This is the node that have to
          be eventually returned.
+
         Don't forget to handle correctly corner-case like when the open queue
          is empty. In this case a value of `None` has to be returned.
         Note: All the nodes that were in the open queue at the beginning of this
          method should be kept in the open queue at the end of this method, except
          for the extracted (and returned) node.
         """
+        if self.open.is_empty():
+            return None
 
-        raise NotImplementedError  # TODO: remove!
+        min_priority = self.open.peek_next_node().expanding_priority
+        focal_max_priority = (1 + self.focal_epsilon) * min_priority
+        focal_size = self.max_focal_size if self.max_focal_size is not None else int('inf')
+
+        # create focal group.
+        focal = []
+        while not self.open.is_empty() and \
+                self.open.peek_next_node().expanding_priority <= focal_max_priority and \
+                len(focal) < focal_size:
+            node = self.open.pop_next_node()
+            focal.append(node)
+
+        # get the best nodes that are (1+epsilon)best_sol
+        candidates = list(map(lambda x: self.within_focal_priority_function(x, problem, self), focal))
+
+        # get the best node from the focal group
+        index_of_best_focal_prio_node = np.argmin(candidates)
+        node_to_expand = np.array(focal)[index_of_best_focal_prio_node]
+
+        # reconstruct the queue
+        for node in focal:
+            if node is not node_to_expand:
+                self.open.push_node(node)
+
+        if self.use_close:
+            self.close.add_node(node_to_expand)
+        return node_to_expand
