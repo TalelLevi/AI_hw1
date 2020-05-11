@@ -237,9 +237,9 @@ def multiple_objectives_mda_problem_experiments():
     # Ex.31
     # TODO: create an instance of `AStar` with the `MDATestsTravelDistToNearestLabHeuristic`,
     #       solve the `moderate_mda_problem_with_tests_travel_dist_cost` with it and print the results.
-    # a_star = AStar(MDATestsTravelDistToNearestLabHeuristic)
-    # res = a_star.solve_problem(moderate_mda_problem_with_tests_travel_dist_cost)
-    # print(res)
+    a_star = AStar(MDATestsTravelDistToNearestLabHeuristic)
+    res = a_star.solve_problem(moderate_mda_problem_with_tests_travel_dist_cost)
+    print(res)
 
     # Ex.34
     # TODO: Implement the algorithm A_2 described in this exercise in the assignment instructions.
@@ -253,19 +253,20 @@ def multiple_objectives_mda_problem_experiments():
     #          has to return whether to add this just-created-node to the `open` queue. Remember that in python
     #          you can pass an argument to a function by its name `some_func(argument_name=some_value)`.
     #       Solve the `moderate_mda_problem_with_tests_travel_dist_cost` with it and print the results.
-    a_star = AStar(MDAMSTAirDistHeuristic)
-    res = a_star.solve_problem(moderate_mda_problem_with_distance_cost)
-    print(f'first run \n{res}')
-    optimal_distance_cost = res.solution_g_cost
-    eps = 0.3
-    max_distance_cost = (1 + eps) * optimal_distance_cost
-    print(f'cost distance: {optimal_distance_cost}')
-    print(f'max allowed distance: {max_distance_cost}')
-    a_star2 = AStar(MDATestsTravelDistToNearestLabHeuristic,
-                   open_criterion=lambda node: node.cost.distance_cost <= max_distance_cost)
-    result = a_star2.solve_problem(moderate_mda_problem_with_tests_travel_dist_cost)
-    print(result.solution_g_cost)
-    print(result)
+    # a_star = AStar(MDAMSTAirDistHeuristic)
+    # res = a_star.solve_problem(moderate_mda_problem_with_distance_cost)
+    # print(f'first run \n{res}')
+    # optimal_distance_cost = res.solution_g_cost
+    # eps = 0.5
+    # max_distance_cost = (1 + eps) * optimal_distance_cost
+    # print(f'cost distance: {optimal_distance_cost}')
+    # print(f'max allowed distance: {max_distance_cost}')
+    # a_star2 = AStar(MDATestsTravelDistToNearestLabHeuristic,
+    #                open_criterion=lambda node: node.cost.distance_cost <= max_distance_cost)
+    # result = a_star2.solve_problem(moderate_mda_problem_with_tests_travel_dist_cost)
+    # print(result.solution_g_cost)
+    # print(result)
+    exit()
 
 def mda_problem_with_astar_epsilon_experiments():
     print()

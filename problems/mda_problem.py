@@ -251,9 +251,8 @@ class MDAProblem(GraphProblem):
         Use the method `self.map_distance_finder.get_map_cost_between()` to calculate the distance
          between to junctions.
         """
-        source = prev_state.current_site if isinstance(prev_state.current_site,
-                                                       Junction) else prev_state.current_site.location
-        destination = succ_state.current_site.location
+        source = prev_state.current_location
+        destination = succ_state.current_location
         distance = self.map_distance_finder.get_map_cost_between(source, destination)
         if distance is None:
             return MDACost(float('inf'), float('inf'), self.optimization_objective)
@@ -303,7 +302,7 @@ class MDAProblem(GraphProblem):
             Use the method `self.get_reported_apartments_waiting_to_visit(state)`.
             Use python's `sorted(..., key=...)` function.
         """
-        curr_location = state.current_site if isinstance(state.current_site, Junction) else state.current_site.location
+        curr_location = state.current_location()
         junction_list = [apt.location for apt in self.get_reported_apartments_waiting_to_visit(state)]
         junction_list.append(curr_location)
         junction_list.sort(key=lambda junction: junction.index)

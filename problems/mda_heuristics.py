@@ -92,7 +92,7 @@ class MDASumAirDistHeuristic(HeuristicFunction):
         if len(all_certain_junctions_in_remaining_ambulance_path) < 2:
             return 0
 
-        curr_junc = state.current_site if isinstance(state.current_site, Junction) else state.current_site.location
+        curr_junc = state.current_location()
         total_cost = 0
         while len(all_certain_junctions_in_remaining_ambulance_path) > 0:  # TODO try and use list-comprehension
             curr_junction_in_path = [
@@ -186,7 +186,7 @@ class MDATestsTravelDistToNearestLabHeuristic(HeuristicFunction):
                          for lab in self.problem.problem_input.laboratories]
             return min(labs_dist)
 
-        curr_location = state.current_site if isinstance(state.current_site, Junction) else state.current_site.location
+        curr_location = state.current_location
         apts_on_path = self.problem.get_reported_apartments_waiting_to_visit(state)
         tests_on_ambulance = state.get_total_nr_tests_taken_and_stored_on_ambulance()
         dist_to_lab = air_dist_to_closest_lab(curr_location)

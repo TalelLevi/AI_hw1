@@ -24,5 +24,5 @@ class AirDistHeuristic(HeuristicFunction):
 
         source_node = problem_map[state.junction_id]
         destination_node = problem_map[self.problem.target_junction_id]
-        distance: float = source_node.calc_air_distance_from(destination_node)
+        distance = source_node.calc_air_distance_from(destination_node)
         return distance
