@@ -92,7 +92,7 @@ class MDASumAirDistHeuristic(HeuristicFunction):
         if len(all_certain_junctions_in_remaining_ambulance_path) < 2:
             return 0
 
-        curr_junc = state.current_location()
+        curr_junc = state.current_location
         total_cost = 0
         while len(all_certain_junctions_in_remaining_ambulance_path) > 0:  # TODO try and use list-comprehension
             curr_junction_in_path = [

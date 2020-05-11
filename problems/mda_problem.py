@@ -302,7 +302,7 @@ class MDAProblem(GraphProblem):
             Use the method `self.get_reported_apartments_waiting_to_visit(state)`.
             Use python's `sorted(..., key=...)` function.
         """
-        curr_location = state.current_location()
+        curr_location = state.current_location
         junction_list = [apt.location for apt in self.get_reported_apartments_waiting_to_visit(state)]
         junction_list.append(curr_location)
         junction_list.sort(key=lambda junction: junction.index)
