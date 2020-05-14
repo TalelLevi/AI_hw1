@@ -288,7 +288,7 @@ class MDAProblem(GraphProblem):
             Note: This method can be implemented using a single line of code. Try to do so.
         """
 
-        return set(self.problem_input.reported_apartments) - state.tests_on_ambulance - state.tests_transferred_to_lab
+        return set(self.problem_input.reported_apartments) - (state.tests_on_ambulance | state.tests_transferred_to_lab)
 
     def get_all_certain_junctions_in_remaining_ambulance_path(self, state: MDAState) -> List[Junction]:
         """

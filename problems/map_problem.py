@@ -65,8 +65,8 @@ class MapProblem(GraphProblem):
         #        `link.distance`). You don't have to specify the operator name here.
         #  Note: Generally, in order to check whether a variable is set to None you should use the expression:
         #        `my_variable_to_check is None`, and particularly do NOT use comparison (==).
-
-        # assert junction is not None
+        if junction is None:
+            return
         for link in junction.outgoing_links:
             yield OperatorResult(successor_state=MapState(link.target), operator_cost=link.distance)
 
@@ -78,4 +78,4 @@ class MapProblem(GraphProblem):
 
         # TODO [Ex.8]: modify the returned value to indicate whether `state` is a final state.
         # You may use the problem's input parameters (stored as fields of this object by the constructor).
-        return state.junction_id == self.target_junction_id  # TODO: modify this!
+        return state.junction_id == self.target_junction_id
