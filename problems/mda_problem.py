@@ -222,7 +222,7 @@ class MDAProblem(GraphProblem):
                     visited_labs=state_to_expand.visited_labs | frozenset({lab})
                 )
                 operator_cost = self.get_operator_cost(state_to_expand, expanded_state)
-                operator_name = "go to lab " + lab.name
+                operator_name = f'go to lab {lab.name}'
                 yield OperatorResult(expanded_state, operator_cost, operator_name)
 
         current_capacity = self.problem_input.ambulance.taken_tests_storage_capacity - nr_tests_on_ambulance
@@ -237,7 +237,7 @@ class MDAProblem(GraphProblem):
                     visited_labs=state_to_expand.visited_labs
                 )
                 operator_cost = self.get_operator_cost(state_to_expand, expanded_state)
-                operator_name = "visit " + apartment.reporter_name
+                operator_name = f'visit {apartment.reporter_name}'
                 yield OperatorResult(expanded_state, operator_cost, operator_name)
 
     def get_operator_cost(self, prev_state: MDAState, succ_state: MDAState) -> MDACost:
